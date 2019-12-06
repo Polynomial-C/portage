@@ -993,22 +993,11 @@ if ___eapi_has_eapply; then
 			ebegin "${prefix:-Applying }${f##*/}"
 			# -p1 as a sane default
 			# -f to avoid interactivity
+			# -s to silence progress output
 			# -g0 to guarantee no VCS interaction
 			# --no-backup-if-mismatch not to pollute the sources
-			local all_opts=(
-				-p1 -f -g0 --no-backup-if-mismatch
-				"${patch_options[@]}"
-			)
-			# try applying with -F0 first, output a verbose warning
-			# if fuzz factor is necessary
-			if ${patch_cmd} "${all_opts[@]}" --dry-run -s -F0 \
-					< "${f}" &>/dev/null; then
-				all_opts+=( -s -F0 )
-			else
-				eqawarn "    ${f}: patch failed to apply without a fuzz factor, please rebase"
-			fi
-
-			${patch_cmd} "${all_opts[@]}" < "${f}"
+			${patch_cmd} -p1 -f -s -g0 --no-backup-if-mismatch \
+				"${patch_options[@]}" < "${f}"
 			failed=${?}
 			if ! eend "${failed}"; then
 				__helpers_die "patch -p1 ${patch_options[*]} failed with ${f}"
